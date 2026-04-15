@@ -10,3 +10,18 @@ public class WeatherForecast
 
     public string? Summary { get; set; }
 }
+
+public class Tour
+{
+    public int Id { get; set; }
+    public string? Title { get; set; }
+    public string? Location { get; set; }
+    
+}
+
+public class User {
+    public int id { get; set; }
+    public string? username { get; set; }
+    public string? password { get; set; }
+    public string? email { get; set; }
+}

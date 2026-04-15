@@ -1,6 +1,6 @@
 @TourPlanner_HostAddress = http://localhost:5270
 
-GET {{TourPlanner_HostAddress}}/weatherforecast/
+GET {{TourPlanner_HostAddress}}/user/
 Accept: application/json
 
 ###
