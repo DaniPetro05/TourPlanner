@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-direction: column; /* mobile first */
+}
+
+.list {
+  border-bottom: 1px solid #ccc;
+}
+
+.detail {
+  padding: 10px;
+}
+
+.tour-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.tour-item:hover {
+  background-color: #f0f0f0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+button {
+  margin-bottom: 10px;
+}
+
+/* Desktop view */
+@media (min-width: 768px) {
+  .container {
+    flex-direction: row;
+  }
+
+  .list {
+    width: 30%;
+  }
+
+  .detail {
+    width: 70%;
+  }
+}
