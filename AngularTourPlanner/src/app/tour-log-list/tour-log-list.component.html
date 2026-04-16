@@ -1,0 +1,47 @@
+<div *ngIf="logs.length > 0; else noLogs">
+    <div *ngFor="let log of logs">
+        <p>{{ log.date }} - {{ log.comment }} ({{ log.rating }})</p>
+        <button (click)="deleteLog(log.id)">Delete</button>
+        <button (click)="editLog(log)">Edit</button>
+    </div>
+</div>
+
+<ng-template #noLogs>
+    <p>No logs available</p>
+</ng-template>
+
+<button (click)="toggleForm()">
+    {{ showForm ? 'Cancel' : 'Create Tour Log' }}
+</button>
+
+<div *ngIf="showForm">
+    <!--<form (ngSubmit)="addLog()" #logForm="ngForm">-->
+    <form (ngSubmit)="saveLog()" #logForm="ngForm">
+    
+        <input 
+        type="date" 
+        [(ngModel)]="newLog.date" 
+        name="date" 
+        required />
+
+        <input 
+        type="text" 
+        placeholder="Comment"
+        [(ngModel)]="newLog.comment" 
+        name="comment" 
+        required />
+
+        <input 
+        type="number" 
+        min="1" 
+        max="5"
+        [(ngModel)]="newLog.rating" 
+        name="rating" 
+        required />
+
+        <button type="submit" [disabled]="!logForm.valid">
+        Save
+        </button>
+
+    </form>
+</div>

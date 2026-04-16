@@ -1,1 +1,80 @@
-<p>tours works!</p>
+<app-toolbar></app-toolbar>
+<div class="container">
+    <div class="list">
+        <div *ngFor="let tour of tours" (click)="onSelect(tour)" class="tour-item">
+        {{ tour.name }}
+
+        <button (click)="deleteTour(tour.id)">Delete</button>
+        <button (click)="editTour(tour)">Edit</button>
+        </div>
+
+        <button (click)="toggleForm()">
+            {{ showForm ? 'Cancel' : 'Create Tour' }}
+        </button>
+
+        <div *ngIf="showForm">
+            <!--<form (ngSubmit)="addTour()" #tourForm="ngForm">-->
+            <form (ngSubmit)="saveTour()" #tourForm="ngForm">
+
+                <input 
+                type="text"
+                placeholder="Tour Name"
+                [(ngModel)]="newTourForm.name"
+                name="name"
+                required />
+
+                <input 
+                type="text"
+                placeholder="Description"
+                [(ngModel)]="newTourForm.description"
+                name="description"
+                required />
+
+                <!--<input
+                type="number"
+                placeholder="Latitude (optional)"
+                [(ngModel)]="newTour.lat"
+                name="lat" />
+
+                <input
+                type="number"
+                placeholder="Longitude (optional)"
+                [(ngModel)]="newTour.lng"
+                name="lng" />-->
+
+                <input
+                [(ngModel)]="newTourForm.from"
+                name="from"
+                placeholder="Start location"
+                required />
+
+                <input
+                [(ngModel)]="newTourForm.to"
+                name="to"
+                placeholder="Destination"
+                required />
+
+                <textarea
+                [(ngModel)]="newTourForm.stopsString"
+                name="stops"
+                placeholder="Stops (comma separated)"
+                ></textarea>
+
+                <input 
+                type="text"
+                placeholder="Image URL (optional)"
+                [(ngModel)]="newTour.imagePath"
+                name="imagePath" />
+
+                <button type="submit" [disabled]="!tourForm.valid">
+                Save
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="detail">
+        <app-tour-detail [tour]="selectedTour"></app-tour-detail>
+    </div>
+</div>

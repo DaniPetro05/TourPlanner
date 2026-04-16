@@ -1,0 +1,30 @@
+<div *ngIf="tour; else noSelection">
+    <h2>{{ tour.name }}</h2>
+    <p>{{ tour.description }}</p>
+    <!--<p>{{ tour.from }} → {{ tour.to }}</p>
+
+    <div *ngIf="tour.stops && tour.stops.length > 0">
+        <h3>Stops</h3>
+        <ul>
+            <li *ngFor="let stop of tour.stops">
+            {{ stop }}
+            </li>
+        </ul>
+    </div>-->
+
+    <p>
+    {{ tour.from }}
+    <span *ngFor="let stop of tour.stops || []">
+        → {{ stop }}
+    </span>
+    → {{ tour.to }}
+    </p>
+
+    <app-tour-log-list [tourId]="tour.id"></app-tour-log-list>
+
+    <app-map [tour]="tour"></app-map>
+</div>
+
+<ng-template #noSelection>
+    <p>Please select a tour</p>
+</ng-template>
