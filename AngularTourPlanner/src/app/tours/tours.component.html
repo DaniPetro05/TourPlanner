@@ -4,7 +4,8 @@
         <div *ngFor="let tour of tours" (click)="onSelect(tour)" class="tour-item">
         {{ tour.name }}
 
-        <button (click)="deleteTour(tour.id)">Delete</button>
+        <!--<button (click)="deleteTour(tour.id)">Delete</button>-->
+        <button *ngIf="tour.id !== undefined" (click)="deleteTour(tour.id!)">Delete</button>
         <button (click)="editTour(tour)">Edit</button>
         </div>
 
@@ -54,6 +55,22 @@
                 placeholder="Destination"
                 required />
 
+                <!--<input
+                [(ngModel)]="newTourForm.transportType"
+                name="Transport Type"
+                placeholder="i.e Bus"
+                required />-->
+
+                <select
+                [(ngModel)]="newTourForm.transportType"
+                name="Transport Type">
+                    <option
+                        *ngFor="let type of transportTypes"
+                        [value]="type">
+                        {{ type }}
+                    </option>
+                </select>
+
                 <textarea
                 [(ngModel)]="newTourForm.stopsString"
                 name="stops"
@@ -63,7 +80,7 @@
                 <input 
                 type="text"
                 placeholder="Image URL (optional)"
-                [(ngModel)]="newTour.imagePath"
+                [(ngModel)]="newTourForm.imagePath"
                 name="imagePath" />
 
                 <button type="submit" [disabled]="!tourForm.valid">

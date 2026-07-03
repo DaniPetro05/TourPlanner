@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: '/../assets/marker-shadow.png',
 });*/
 
-const viennaCoords: Record<string, [number, number]> = {
+/*const viennaCoords: Record<string, [number, number]> = {
   "Hauptbahnhof Wien": [48.185, 16.374],
   "Favoriten": [48.174, 16.377],
   "Simmering": [48.173, 16.442],
@@ -24,7 +24,7 @@ const viennaCoords: Record<string, [number, number]> = {
   "Donaustadt": [48.233, 16.450],
   "Floridsdorf": [48.255, 16.400],
   "Innere Stadt": [48.208, 16.373]
-};
+};*/
 
 @Component({
   selector: 'app-map',
@@ -36,7 +36,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
   @Input() tour?: Tour;
   
   private map: any;
-  private marker: any;
+  //private marker: any;
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -44,11 +44,16 @@ export class MapComponent implements AfterViewInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    if (this.map && this.tour?.name && this.tour?.from && this.tour?.to && this.tour.stops/* && this.tour?.lat && this.tour?.lng*/) {
+    //if (this.map && this.tour?.name && this.tour?.from && this.tour?.to && this.tour.stops/* && this.tour?.lat && this.tour?.lng*/) {
+    /*if (this.map && this.tour) {
       this.updateMap();
 
-      console.log("Map updated!");
-    }
+      //console.log("Map updated!");
+    }*/
+    if (!this.map || !this.tour?.routeGeometry)
+      return;
+    
+    this.updateMap();
   }
 
   private initMap(): void {
@@ -149,7 +154,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
     this.map.fitBounds(this.routeLayer.getBounds());
   }*/
 
-  async updateMap() {
+  /*async updateMap() {
     if (!this.tour) return;
 
     const points: [number, number][] = [];
@@ -197,6 +202,37 @@ export class MapComponent implements AfterViewInit, OnChanges {
     }).addTo(this.map);
 
     this.map.fitBounds(this.routeLayer.getBounds());
+  }*/
+
+  updateMap() {
+    if (!this.tour?.routeGeometry)
+      return;
+
+    //console.log(this.tour?.routeGeometry);
+
+    /*const geometry = JSON.parse(this.tour.routeGeometry);
+
+    const latLngs: [number, number][] =
+        geometry.coordinates.map(
+          (c: [number, number]) => [c[1], c[0]]
+        );*/
+
+    const geometry = JSON.parse(this.tour.routeGeometry!);
+
+    const latLngs = geometry.coordinates.map(
+      (c: number[]) => [c[1], c[0]]
+    );
+
+    if (this.routeLayer) {
+        this.map.removeLayer(this.routeLayer);
+    }
+
+    this.routeLayer = L.polyline(latLngs, {
+        color: 'blue',
+        weight: 5
+    }).addTo(this.map);
+
+    this.map.fitBounds(this.routeLayer.getBounds());
   }
 
   /*async getCoordinates(place: string): Promise<[number, number] | null> {
@@ -211,7 +247,7 @@ export class MapComponent implements AfterViewInit, OnChanges {
     return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
   }*/
 
-  async getCoordinates(place: string): Promise<[number, number] | null> {
+  /*async getCoordinates(place: string): Promise<[number, number] | null> {
     if (viennaCoords[place]) {
       return viennaCoords[place];
     }
@@ -228,5 +264,5 @@ export class MapComponent implements AfterViewInit, OnChanges {
 
     //Photon returns [lon, lat]; Leaflet needs [lat, lon]
     return [coords[1], coords[0]];
-  }
+  }*/
 }

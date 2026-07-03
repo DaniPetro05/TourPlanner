@@ -1,0 +1,32 @@
+<form (ngSubmit)="register()" #registerForm="ngForm">
+    <input
+        type="text"
+        [(ngModel)]="username"
+        name="username"
+        placeholder="Username"
+        required>
+
+    <input
+        type="email"
+        [(ngModel)]="email"
+        name="email"
+        placeholder="Email"
+        required>
+
+    <input
+        type="password"
+        [(ngModel)]="password"
+        name="password"
+        placeholder="Password"
+        required>
+
+    <button type="submit" [disabled]="!registerForm.valid">
+        Register
+    </button>
+
+    <p>Already have an account?</p>
+
+    <button type="button" routerLink="/login">
+        Login
+    </button>
+</form>

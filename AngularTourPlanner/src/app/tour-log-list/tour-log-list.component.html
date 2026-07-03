@@ -1,6 +1,6 @@
 <div *ngIf="logs.length > 0; else noLogs">
     <div *ngFor="let log of logs">
-        <p>{{ log.date }} - {{ log.comment }} ({{ log.rating }})</p>
+        <p>Created at: {{ log.date | date:'dd.MM.yyyy HH:mm' }} - Difficulty: {{ log.difficulty }} - {{ log.comment }} Rating: {{ log.rating }}</p>
         <button (click)="deleteLog(log.id)">Delete</button>
         <button (click)="editLog(log)">Edit</button>
     </div>
@@ -15,17 +15,24 @@
 </button>
 
 <div *ngIf="showForm">
-    <!--<form (ngSubmit)="addLog()" #logForm="ngForm">-->
     <form (ngSubmit)="saveLog()" #logForm="ngForm">
     
-        <input 
+        <!--<input 
         type="date" 
         [(ngModel)]="newLog.date" 
         name="date" 
+        required />-->
+
+        <input 
+        type="number" 
+        min="1" 
+        max="10"
+        [(ngModel)]="newLog.difficulty" 
+        name="difficulty" 
         required />
 
         <input 
-        type="text" 
+        type="text"
         placeholder="Comment"
         [(ngModel)]="newLog.comment" 
         name="comment" 

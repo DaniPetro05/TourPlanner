@@ -1,40 +1,23 @@
 import { Component } from '@angular/core';
 import { Input } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+import { NgIf, NgFor, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SimpleChanges } from '@angular/core';
 import { TourLog } from '../tour-log';
+import { TourLogService } from '../services/tour-log.service';
 
 @Component({
   selector: 'app-tour-log-list',
-  imports: [NgIf, NgFor, FormsModule],
+  imports: [NgIf, NgFor, FormsModule, DatePipe],
   templateUrl: './tour-log-list.component.html',
   styleUrl: './tour-log-list.component.css'
 })
 export class TourLogListComponent {
   @Input() tourId?: number;
 
+  constructor(private logService: TourLogService) {}
+
   logs: TourLog[] = [];
-
-  /*ngOnChanges() {
-    if (this.tourId) {
-      //TEMPORARY: mock data
-      this.logs = [
-        { id: 1, tourId: this.tourId, date: '2026-01-01', comment: 'Nice', rating: 4 },
-      ];
-    }
-  }*/
-
-  allLogs: TourLog[] = [
-    { id: 1, tourId: 1, date: '2026-01-01', comment: 'Nice', rating: 4 },
-    { id: 2, tourId: 2, date: '2026-01-02', comment: 'Great', rating: 5 }
-  ];
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['tourId']) {
-      this.loadLogs();
-    }
-  }
 
   loadLogs() {
     if (!this.tourId) {
@@ -42,9 +25,13 @@ export class TourLogListComponent {
       return;
     }
 
-    this.logs = this.allLogs.filter(
-      log => log.tourId === this.tourId
-    );
+    this.logService.getLogsByTour(this.tourId).subscribe(logs => this.logs = logs);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['tourId']) {
+      this.loadLogs();
+    }
   }
 
   showForm = false;
@@ -54,6 +41,9 @@ export class TourLogListComponent {
     tourId: 0,
     date: '',
     comment: '',
+    difficulty: 0,
+    totalDistance: 0,
+    totalTime: 0,
     rating: 1
   };
 
@@ -61,58 +51,50 @@ export class TourLogListComponent {
     this.showForm = !this.showForm;
   }
 
-  /*addLog() {
-    if (!this.tourId) return;
-
-    const newEntry: TourLog = {
-      ...this.newLog,
-      id: Date.now(), // simple unique ID
-      tourId: this.tourId
-    };
-
-    this.logs.push(newEntry);
-
-    //reset form
-    this.newLog = {
-      id: 0,
-      tourId: 0,
-      date: '',
-      comment: '',
-      rating: 1
-    };
-
-    this.showForm = false;
-  }*/
-
   saveLog() {
     if (!this.tourId) return;
 
+    const dto = {
+      //date: this.newLog.date,
+      date: new Date().toISOString(), //doesn't actually do anything, as date is set in Backend, but left as is due to time constraints
+      comment: this.newLog.comment,
+      difficulty: this.newLog.difficulty,
+      totalDistance: this.newLog.totalDistance,
+      totalTime: this.newLog.totalTime,
+      rating: this.newLog.rating,
+      tourId: this.tourId
+    };
+
     if (this.editingLogId) {
-      const log = this.allLogs.find(l => l.id === this.editingLogId);
-      if (log) {
-        log.date = this.newLog.date;
-        log.comment = this.newLog.comment;
-        log.rating = this.newLog.rating;
-      }
-
-      this.editingLogId = undefined;
-
-    } else {
-      const newEntry: TourLog = {
-        ...this.newLog,
-        id: Date.now(),
-        tourId: this.tourId
-      };
-
-      this.allLogs.push(newEntry);
+      this.logService.updateLog(this.editingLogId, dto).subscribe(() => {
+            this.loadLogs();
+        });
+    }
+    else {
+      this.logService.createLog(dto).subscribe({
+        next: () => this.loadLogs(),
+        error: err => console.error("Create log failed:", err)
+      });
     }
 
-    this.loadLogs();
     this.showForm = false;
+
+    this.editingLogId = undefined;
+
+    this.newLog = {
+        id: 0,
+        tourId: 0,
+        date: '',
+        comment: '',
+        difficulty: 0,
+        totalDistance: 0,
+        totalTime: 0,
+        rating: 1
+    };
   }
 
   deleteLog(id: number) {
-    this.allLogs = this.allLogs.filter(log => log.id !== id);
+    this.logService.deleteLog(id).subscribe(() => this.loadLogs());
     this.loadLogs();
   }
 

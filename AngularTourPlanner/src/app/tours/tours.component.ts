@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { TourDetailComponent } from '../tour-detail/tour-detail.component';
+
 import { Tour } from '../tour';
+import { TourService } from '../services/tour.service';
 
 @Component({
   selector: 'app-tours',
@@ -12,193 +15,119 @@ import { Tour } from '../tour';
   styleUrl: './tours.component.css'
 })
 export class ToursComponent {
-  tours: Tour[] = [
-  {
-    id: 1,
-    name: 'Vienna City Tour',
-    description: 'Explore Vienna',
-    from: 'Hauptbahnhof Wien',
-    to: 'Favoriten',
-    stops: [
-      'Simmering',
-      'Leopoldstadt',
-      'Donaustadt',
-      'Floridsdorf',
-      'Brigittenau',
-      'Döbling',
-      'Währing',
-      'Hernals',
-      'Ottakring',
-      'Rudolfheim-Fünfhaus',
-      'Penzing',
-      'Hietzing',
-      'Liesing',
-      'Meidling',
-      'Margareten Wien',
-      'Mariahilf',
-      'Neubau',
-      'Josefstadt Wien',
-      'Alsergrund',
-      'Innere Stadt',
-      'Wieden']
-    //lat: 48.2082,
-    //lng: 16.3738
-  },
-  {
-    id: 2,
-    name: 'Austria Tour',
-    description: 'Travel Austria',
-    from: 'Wien Hauptbahnhof',
-    to: 'Wien Favoriten',
-    stops: [
-      'Burgenland',
-      'Steiermark',
-      'Kärnten',
-      'Osttirol',
-      'Tirol',
-      'Vorarlberg',
-      'Tirol',
-      'Salzburg',
-      'Oberösterreich',
-      'Niederösterreich',
-    ]
-    //lat: 48.251,
-    //lng: 16.405
-  }
-];
+
+  tours: Tour[] = [];
 
   selectedTour?: Tour;
+
+  showForm = false;
+
+  editingTourId?: number;
+
+  transportTypes: string[] = [];
+
+  newTourForm = {
+    name: '',
+    description: '',
+    from: '',
+    to: '',
+    transportType: '',
+    distance: 0,
+    estimatedTime: '',
+    imagePath: '',
+    stopsString: ''
+  };
+
+  constructor(private tourService: TourService) {}
+
+  ngOnInit() {
+    this.loadTours();
+
+    this.tourService.getTransportTypes().subscribe(types => {
+        this.transportTypes = types;
+    });
+  }
+
+  loadTours() {
+    this.tourService.getTours().subscribe(data => {
+      this.tours = data;
+    });
+  }
 
   onSelect(tour: Tour) {
     this.selectedTour = tour;
   }
 
-  //can be used for the first tour to be automatically selected
-  /*ngOnInit() {
-    if (this.tours.length > 0) {
-      this.selectedTour = this.tours[0];
-    }
-  }*/
-
-  showForm = false;
-
-  newTour: Tour = {
-    id: 0,
-    name: '',
-    description: '',
-    from: '',
-    to: '',
-    imagePath: ''
-  };
-
   toggleForm() {
     this.showForm = !this.showForm;
   }
 
-  newTourForm = {
-    name: '',
-    description: '',
-    imagePath: '',
-    from: '',
-    to: '',
-    stopsString: ''
-  };
-
-  /*addTour() {
-    if (!this.newTour.name || !this.newTour.description) return;
-
-    const tourToAdd: Tour = {
-      ...this.newTour,
-      id: Date.now()  //simple unique ID
-    };
-
-    this.tours.push(tourToAdd);
-
-    //reset form
-    this.newTour = {
-      id: 0,
-      name: '',
-      description: '',
-      imagePath: ''
-    };
-
-    this.showForm = false;
-  }*/
-
-  /*addTour() {
+  saveTour() {
     const stops = this.newTourForm.stopsString
-      ? this.newTourForm.stopsString.split(',').map((s: string) => s.trim())
+      ? this.newTourForm.stopsString.split(',').map(s => s.trim())
       : [];
 
-    const tourToAdd: Tour = {
-      id: Date.now(),
+    const tour: Tour = {
       name: this.newTourForm.name,
       description: this.newTourForm.description,
-      imagePath: this.newTourForm.imagePath,
       from: this.newTourForm.from,
       to: this.newTourForm.to,
+      transportType: this.newTourForm.transportType,
+      distance: this.newTourForm.distance,
+      estimatedTime: this.newTourForm.estimatedTime,
+      imagePath: this.newTourForm.imagePath,
       stops
     };
 
-    this.tours.push(tourToAdd);
+    if (this.editingTourId !== undefined && this.editingTourId !== null) {
+      // EDIT
+      this.tourService.updateTour(this.editingTourId, tour).subscribe({
+          next: () => {
+              this.loadTours();
+              this.showForm = false;
+          },
+          error: err => {
+              alert(err.error.error);
+          }
+      });
+    } else {
+      // CREATE
+      this.tourService.createTour(tour).subscribe({
+          next: () => {
+              this.loadTours();
+              this.showForm = false;
+          },
+          error: err => {
+              alert(err.error.error);
+          }
+      });
+    }
+
+    this.showForm = false;
+    this.editingTourId = undefined;
 
     this.newTourForm = {
       name: '',
       description: '',
-      imagePath: '',
       from: '',
       to: '',
+      transportType: '',
+      distance: 0,
+      estimatedTime: '',
+      imagePath: '',
       stopsString: ''
     };
-  }*/
-
-  saveTour() {
-    const stops = this.newTourForm.stopsString
-      ? this.newTourForm.stopsString.split(',').map((s: string) => s.trim())
-      : [];
-
-    if (this.editingTourId) {
-      // EDIT
-      const tour = this.tours.find(t => t.id === this.editingTourId);
-      if (tour) {
-        tour.name = this.newTourForm.name;
-        tour.description = this.newTourForm.description;
-        tour.imagePath = this.newTourForm.imagePath;
-        tour.from = this.newTourForm.from;
-        tour.to = this.newTourForm.to;
-        tour.stops = stops;
-      }
-
-      this.editingTourId = undefined;
-
-    } else {
-      // CREATE
-      const newTour: Tour = {
-        id: Date.now(),
-        name: this.newTourForm.name,
-        description: this.newTourForm.description,
-        imagePath: this.newTourForm.imagePath,
-        from: this.newTourForm.from,
-        to: this.newTourForm.to,
-        stops
-      };
-
-      this.tours.push(newTour);
-    }
-
-    this.showForm = false;
   }
 
   deleteTour(id: number) {
-    this.tours = this.tours.filter(t => t.id !== id);
+    this.tourService.deleteTour(id).subscribe(() => {
+      this.loadTours();
 
-    //clear selection if deleted
-    if (this.selectedTour?.id === id) {
-      this.selectedTour = undefined;
-    }
+      if (this.selectedTour?.id === id) {
+        this.selectedTour = undefined;
+      }
+    });
   }
-
-  editingTourId?: number;
 
   editTour(tour: Tour) {
     this.showForm = true;
@@ -207,9 +136,12 @@ export class ToursComponent {
     this.newTourForm = {
       name: tour.name,
       description: tour.description,
-      imagePath: tour.imagePath || '',
       from: tour.from,
       to: tour.to,
+      transportType: tour.transportType,
+      distance: tour.distance,
+      estimatedTime: tour.estimatedTime,
+      imagePath: tour.imagePath || '',
       stopsString: tour.stops?.join(', ') || ''
     };
   }

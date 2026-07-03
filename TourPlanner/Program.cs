@@ -1,3 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using TourPlanner.Data;
+using TourPlanner.Interfaces;
+using TourPlanner.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 namespace TourPlanner;
 
 public class Program
@@ -6,6 +13,18 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        builder.Services.AddScoped<ITourService, TourService>();
+
+        builder.Services.AddScoped<ITourLogService, TourLogService>();
+
+        builder.Services.AddScoped<IOpenRouteServiceClient, OpenRouteServiceClient>();
+
+        builder.Services.AddScoped<JWTService>();
+
+        builder.Services.AddControllers();
+        
         // Add services to the container.
         builder.Services.AddAuthorization();
 
@@ -22,6 +41,25 @@ public class Program
                 });
             });
 
+        builder.Services.AddHttpClient<OpenRouteServiceClient>();
+
+        builder.Services.AddAuthentication("Bearer")
+            .AddJwtBearer("Bearer", options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                };
+            });
+        
+        builder.Services.AddHttpContextAccessor();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -34,23 +72,11 @@ public class Program
         
         app.UseCors();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
-        /*var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };*/
-        var user = new User()
-        {
-            id = 1,
-            username = "Test",
-            password = "",
-            email = "test@example.com"
-        };
+        app.MapControllers();
 
-        app.MapPost("/user", (HttpContext httpContext) => Results.Ok(user))
-            .WithName("UserPostRequest");
-        app.MapGet("/user", () => Results.Ok(user));
         app.Run();
     }
 }
