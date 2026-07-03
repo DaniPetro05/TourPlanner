@@ -60,6 +60,10 @@ public class Program
         
         builder.Services.AddHttpContextAccessor();
 
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
+        builder.Logging.AddDebug();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

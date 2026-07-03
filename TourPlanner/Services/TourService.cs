@@ -12,12 +12,14 @@ public class TourService : ITourService
     private readonly ApplicationDbContext _context;
     private readonly IOpenRouteServiceClient _ors;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<TourService> _logger;
 
-    public TourService(ApplicationDbContext context, IOpenRouteServiceClient ors, IHttpContextAccessor httpContextAccessor)
+    public TourService(ApplicationDbContext context, IOpenRouteServiceClient ors, IHttpContextAccessor httpContextAccessor, ILogger<TourService> logger)
     {
         _context = context;
         _ors = ors;
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     public async Task<List<TourDto>> GetAllAsync()
@@ -107,7 +109,12 @@ public class TourService : ITourService
         };
 
         _context.Tours.Add(tour);
+
+        _logger.LogInformation("Creating tour {Name} for user {UserId}", dto.Name, userId);
+
         await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Tour created successfully with ID {Id}", tour.Id);
 
         return new TourDto
         {
@@ -133,7 +140,13 @@ public class TourService : ITourService
         if (tour == null) return false;
 
         _context.Tours.Remove(tour);
+
+        _logger.LogWarning("Deleting tour {Id}", id);
+        
         await _context.SaveChangesAsync();
+
+        _logger.LogWarning("Tour {Id} deleted", id);
+
         return true;
     }
 
@@ -158,7 +171,12 @@ public class TourService : ITourService
         tour.EstimatedTime = TimeSpan.FromMinutes(route.Duration);
         tour.RouteGeometry = route.Geometry;
 
+        _logger.LogInformation("Updating tour {Id}", id);
+
         await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Tour {Id} updated", id);
+
         return true;
     }
 

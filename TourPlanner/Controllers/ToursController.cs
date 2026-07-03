@@ -30,13 +30,6 @@ public class ToursController : ControllerBase
         return tour == null ? NotFound() : Ok(tour);
     }
 
-    /*[HttpPost]
-    public async Task<IActionResult> Create(CreateTourDto dto)
-    {
-        var created = await _service.CreateAsync(dto);
-        return Ok(created);
-    }*/
-
     [HttpPost]
     public async Task<IActionResult> Create(CreateTourDto dto)
     {
@@ -61,13 +54,6 @@ public class ToursController : ControllerBase
         return ok ? Ok() : NotFound();
     }
 
-    /*[HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, CreateTourDto dto)
-    {
-        var updated = await _service.UpdateAsync(id, dto);
-        return updated ? Ok() : NotFound();
-    }*/
-
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, CreateTourDto dto)
     {
@@ -85,6 +71,53 @@ public class ToursController : ControllerBase
             {
                 error = ex.Message
             });
+        }
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string query)
+    {
+        var result = await _service.GetAllAsync();
+
+        var filtered = result.Where(t =>
+            t.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+            t.Description.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+            t.Popularity.Contains(query) ||
+            t.ChildFriendliness.Contains(query)
+        ).ToList();
+
+        return Ok(filtered);
+    }
+
+    [HttpGet("export")]
+    public async Task<IActionResult> Export()
+    {
+        var tours = await _service.GetAllAsync();
+
+        var json = System.Text.Json.JsonSerializer.Serialize(tours);
+
+        return File(
+            System.Text.Encoding.UTF8.GetBytes(json),
+            "application/json",
+            "tours.json"
+        );
+    }
+
+    [HttpPost("import")]
+    public async Task<IActionResult> Import([FromBody] List<CreateTourDto> tours)
+    {
+        try
+        {
+            foreach (var dto in tours)
+            {
+                await _service.CreateAsync(dto);
+            }
+
+            return Ok(new { message = "Import successful" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
         }
     }
 }

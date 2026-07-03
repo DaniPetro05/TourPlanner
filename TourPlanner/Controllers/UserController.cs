@@ -1,23 +1,42 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using TourPlanner;
+using System.Security.Claims;
+using TourPlanner.Data;
+using TourPlanner.DTOs;
+using Microsoft.EntityFrameworkCore;
 
-namespace TourPlanner.Controllers
+namespace TourPlanner.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class UserController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : Controller
-    {
-        // GET: UserController
-        public ActionResult Index()
-        {
-            return View();
-        }
+    private readonly ApplicationDbContext _context;
 
-        /*[HttpPost]
-        public async Task<IActionResult> GetRequest()
-        {
-            
-        }*/
+    public UserController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new UserDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Email = u.Email
+            })
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+            return NotFound();
+
+        return Ok(user);
     }
 }

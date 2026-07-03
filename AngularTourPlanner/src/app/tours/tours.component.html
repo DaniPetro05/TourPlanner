@@ -1,10 +1,12 @@
 <app-toolbar></app-toolbar>
 <div class="container">
     <div class="list">
+        <input [(ngModel)]="searchQuery" placeholder="Search tours..." />
+        <button (click)="search()">Search</button>
+        
         <div *ngFor="let tour of tours" (click)="onSelect(tour)" class="tour-item">
         {{ tour.name }}
 
-        <!--<button (click)="deleteTour(tour.id)">Delete</button>-->
         <button *ngIf="tour.id !== undefined" (click)="deleteTour(tour.id!)">Delete</button>
         <button (click)="editTour(tour)">Edit</button>
         </div>
@@ -14,7 +16,6 @@
         </button>
 
         <div *ngIf="showForm">
-            <!--<form (ngSubmit)="addTour()" #tourForm="ngForm">-->
             <form (ngSubmit)="saveTour()" #tourForm="ngForm">
 
                 <input 
@@ -31,18 +32,6 @@
                 name="description"
                 required />
 
-                <!--<input
-                type="number"
-                placeholder="Latitude (optional)"
-                [(ngModel)]="newTour.lat"
-                name="lat" />
-
-                <input
-                type="number"
-                placeholder="Longitude (optional)"
-                [(ngModel)]="newTour.lng"
-                name="lng" />-->
-
                 <input
                 [(ngModel)]="newTourForm.from"
                 name="from"
@@ -54,12 +43,6 @@
                 name="to"
                 placeholder="Destination"
                 required />
-
-                <!--<input
-                [(ngModel)]="newTourForm.transportType"
-                name="Transport Type"
-                placeholder="i.e Bus"
-                required />-->
 
                 <select
                 [(ngModel)]="newTourForm.transportType"
@@ -86,9 +69,10 @@
                 <button type="submit" [disabled]="!tourForm.valid">
                 Save
                 </button>
-
             </form>
         </div>
+        <button (click)="downloadExport()">Export Tours</button>
+        <input type="file" (change)="onFileSelected($event)" />
     </div>
 
     <div class="detail">

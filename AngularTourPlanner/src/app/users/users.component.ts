@@ -1,32 +1,23 @@
 import { Component, inject, signal } from '@angular/core';
-import { User, UserService }  from '../user.service';
-import { HttpClient } from '@angular/common/http';
+import { NgIf } from '@angular/common';
+import { User } from '../models/user';
+import { UserService} from '../services/user.service';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 @Component({
   selector: 'app-users',
-  imports: [ToolbarComponent],
+  imports: [ToolbarComponent, NgIf],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
 export class UsersComponent {
-  Users = signal<User>({id: 0, username: "", password: "", email: ""});
-  users: User = {username: "", password: "", email: ""};
-  UserService = inject(UserService);
-  requests: any;
-  //constructor(private cdr: ChangeDetectorRef) {}
+  private userService = inject(UserService);
 
-  /*ngOnInit(): void {
-    this.getPosts();
-  }*/
+  user = signal<User | null>(null);
 
-  getPosts() {
-    this.requests = this.UserService.get().subscribe({
-      next: (data) => {
-        this.users = data;
-        console.log(this.users);
-        //this.cdr.markForCheck();
-      }
+  loadUser() {
+    this.userService.getCurrentUser().subscribe({
+      next: (data) => this.user.set(data)
     });
   }
 }

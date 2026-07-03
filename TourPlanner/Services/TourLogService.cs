@@ -9,10 +9,12 @@ namespace TourPlanner.Services;
 public class TourLogService : ITourLogService
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<TourLogService> _logger;
 
-    public TourLogService(ApplicationDbContext context)
+    public TourLogService(ApplicationDbContext context, ILogger<TourLogService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<List<TourLogDto>> GetByTourIdAsync(int tourId)
@@ -51,7 +53,12 @@ public class TourLogService : ITourLogService
         };
 
         _context.TourLogs.Add(log);
+
+        _logger.LogInformation("Creating tour log for TourId {TourId}", dto.TourId);
+
         await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Tour log for TourId {TourId} created", dto.TourId);
 
         return new TourLogDto
         {
@@ -72,7 +79,13 @@ public class TourLogService : ITourLogService
         if (log == null) return false;
 
         _context.TourLogs.Remove(log);
+
+        _logger.LogWarning("Deleting tour log {Id}", id);
+
         await _context.SaveChangesAsync();
+
+        _logger.LogWarning("Tour log {Id} deleted", id);
+
         return true;
     }
 
@@ -88,7 +101,11 @@ public class TourLogService : ITourLogService
         log.TotalTime = dto.TotalTime;
         log.Rating = dto.Rating;
 
+        _logger.LogInformation("Updating tour log {Id}", id);
+
         await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Tour log {Id} updated", id);
 
         return new TourLogDto
         {

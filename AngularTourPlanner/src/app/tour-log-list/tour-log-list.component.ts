@@ -3,7 +3,7 @@ import { Input } from '@angular/core';
 import { NgIf, NgFor, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SimpleChanges } from '@angular/core';
-import { TourLog } from '../tour-log';
+import { TourLog } from '../models/tour-log';
 import { TourLogService } from '../services/tour-log.service';
 
 @Component({

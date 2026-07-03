@@ -7,6 +7,8 @@ using TourPlanner.DTOs;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace TourPlanner.Tests;
 
@@ -21,6 +23,7 @@ public class TourLogServiceTests
     
     private ApplicationDbContext _context;
     private TourLogService _service;
+    private Mock<ILogger<TourLogService>> _loggerMock;
 
     [SetUp]
     public void Setup()
@@ -30,7 +33,9 @@ public class TourLogServiceTests
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _service = new TourLogService(_context);
+        _loggerMock = new Mock<ILogger<TourLogService>>();
+
+        _service = new TourLogService(_context, _loggerMock.Object);
     }
 
     [Test]

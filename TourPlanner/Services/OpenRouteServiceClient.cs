@@ -34,20 +34,6 @@ public class OpenRouteServiceClient : IOpenRouteServiceClient
 
         coordinates.Add(new[] { start.lon, start.lat });
 
-        /*if (stops != null)
-        {
-            foreach (var stop in stops)
-            {
-                var s = await GeocodeAsync(stop);
-
-                coordinates.Add(new[]
-                {
-                    s.lon,
-                    s.lat
-                });
-            }
-        }*/
-
         if (stops != null)
         {
             foreach (var stop in stops)
@@ -73,11 +59,7 @@ public class OpenRouteServiceClient : IOpenRouteServiceClient
 
         var requestBody = new
         {
-            /*coordinates = new[]
-            {
-                new[] { start.lon, start.lat },
-                new[] { end.lon, end.lat }
-            }*/coordinates,
+            coordinates,
             geometry = true,
             geometry_simplify = false,
             instructions = false,
@@ -114,9 +96,6 @@ public class OpenRouteServiceClient : IOpenRouteServiceClient
         }
 
         var json = await response.Content.ReadAsStringAsync();
-
-        //Console.WriteLine("===== DIRECTIONS RESPONSE =====");
-        //Console.WriteLine(json);
 
         var doc = JsonDocument.Parse(json);
 
@@ -163,11 +142,6 @@ public class OpenRouteServiceClient : IOpenRouteServiceClient
         var json = await response.Content.ReadAsStringAsync();
 
         using var doc = JsonDocument.Parse(json);
-
-        /*var coords = doc.RootElement
-            .GetProperty("features")[0]
-            .GetProperty("geometry")
-            .GetProperty("coordinates");*/
 
         var features = doc.RootElement.GetProperty("features");
 

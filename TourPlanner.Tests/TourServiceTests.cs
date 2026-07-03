@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace TourPlanner.Tests;
@@ -28,6 +29,7 @@ public class TourServiceTests
     private ApplicationDbContext _context;
     private TourService _service;
     private Mock<IOpenRouteServiceClient> _orsMock;
+    private Mock<ILogger<TourService>> _loggerMock;
 
     [SetUp]
     public void Setup()
@@ -52,6 +54,8 @@ public class TourServiceTests
             Geometry = "{}"
         });
 
+        _loggerMock = new Mock<ILogger<TourService>>();
+
         var httpContext = new DefaultHttpContext();
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new[]
         {
@@ -60,7 +64,7 @@ public class TourServiceTests
 
         var accessor = new HttpContextAccessor { HttpContext = httpContext };
 
-        _service = new TourService(_context, _orsMock.Object, accessor);
+        _service = new TourService(_context, _orsMock.Object, accessor, _loggerMock.Object);
     }
 
     private async Task<Tour> SeedTourWithLogs()

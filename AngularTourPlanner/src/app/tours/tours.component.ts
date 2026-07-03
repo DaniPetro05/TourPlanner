@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { TourDetailComponent } from '../tour-detail/tour-detail.component';
 
-import { Tour } from '../tour';
+import { Tour } from '../models/tour';
 import { TourService } from '../services/tour.service';
 
 @Component({
@@ -144,5 +144,40 @@ export class ToursComponent {
       imagePath: tour.imagePath || '',
       stopsString: tour.stops?.join(', ') || ''
     };
+  }
+
+  searchQuery = '';
+
+  search() {
+    this.tourService.searchTours(this.searchQuery).subscribe(data => {
+      this.tours = data;
+    });
+  }
+
+  downloadExport() {
+    this.tourService.exportTours().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'tours.json';
+      a.click();
+    });
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const json = JSON.parse(reader.result as string);
+
+      this.tourService.importTours(json).subscribe(() => {
+        console.log("Import successful");
+        this.loadTours(); // refresh list
+      });
+    };
+
+    reader.readAsText(file);
   }
 }

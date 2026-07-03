@@ -1,13 +1,10 @@
 <app-toolbar></app-toolbar>
-<h2>Beginnings of TourPlanner! Very welcome!</h2>
-    <button (click)="getPosts()">Get Users</button>
-        <div>
-            Id: {{users.id}}
-        </div>
-        <div>
-            Username: {{users.username}}
-        </div>
-        <div>
-            Email: {{users.email}}
-        </div>
-    
+<h2>User Profile</h2>
+
+<button (click)="loadUser()">Load My Profile</button>
+
+<div *ngIf="user() as u">
+    <div>Id: {{u.id}}</div>
+    <div>Username: {{u.username}}</div>
+    <div>Email: {{u.email}}</div>
+</div>

@@ -37,7 +37,7 @@ import { NgIf, NgFor, CommonModule } from '@angular/common';
 import { MapComponent } from '../map/map.component';
 import { TourLogListComponent } from '../tour-log-list/tour-log-list.component';
 
-import { Tour } from '../tour';
+import { Tour } from '../models/tour';
 
 @Component({
   selector: 'app-tour-detail',

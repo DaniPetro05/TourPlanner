@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Tour } from '../tour';
+import { Tour } from '../models/tour';
 
 @Injectable({
   providedIn: 'root'
@@ -35,5 +35,19 @@ export class TourService {
   getTransportTypes() {
     //return this.http.get<string[]>(`${this.apiUrl}/transport`);
     return this.http.get<string[]>('http://localhost:5270/api/transport');
+  }
+
+  searchTours(query: string) {
+    return this.http.get<Tour[]>(`${this.apiUrl}/search?query=${query}`);
+  }
+
+  exportTours() {
+    return this.http.get(`${this.apiUrl}/export`, {
+      responseType: 'blob'
+    });
+  }
+
+  importTours(data: any[]) {
+    return this.http.post(`${this.apiUrl}/import`, data);
   }
 }
