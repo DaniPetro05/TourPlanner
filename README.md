@@ -1,3 +1,3 @@
-Currently in development.
+Developmental phase completed.
 More is expected, and this project is merely a reference. 
-Do NOT replicate this, thinking anything of TourPlanner is present.
+Future development or refinements pending.
